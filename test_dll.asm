@@ -6,16 +6,16 @@ include 'win32a.inc'
 section '.text' code readable executable
 
 DllEntryPoint:
-	mov eax, 1
-	ret
+  mov eax, 1
+  ret
 
 SampleFunction:
-	mov eax, 123
-	ret
+  mov eax, 123
+  ret
 
 GetSampleValueAddress:
-	mov eax, sample_value
-	ret
+  mov eax, sample_value
+  ret
 
 section '.data' data readable writeable
 
