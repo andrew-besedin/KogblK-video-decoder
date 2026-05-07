@@ -3,24 +3,18 @@ entry DllEntryPoint
 
 include 'win32a.inc'
 
-S_OK                        = 0
-S_FALSE                     = 1
-E_NOTIMPL                   = 80004001h
-E_NOINTERFACE               = 80004002h
-E_POINTER                   = 80004003h
-E_OUTOFMEMORY               = 8007000Eh
-CLASS_E_NOAGGREGATION       = 80040110h
-CLASS_E_CLASSNOTAVAILABLE   = 80040111h
-HEAP_ZERO_MEMORY            = 8
+S_OK = 0
+S_FALSE = 1
+E_NOTIMPL = 80004001h
+E_NOINTERFACE = 80004002h
+E_POINTER = 80004003h
+E_OUTOFMEMORY = 8007000Eh
+CLASS_E_NOAGGREGATION = 80040110h
+CLASS_E_CLASSNOTAVAILABLE = 80040111h
 
-MINIMAL_OBJECT_VTBL         = 0
-MINIMAL_OBJECT_REFCOUNT     = 4
-MINIMAL_OBJECT_SIZE         = 8
-
-HKEY_CLASSES_ROOT           = 80000000h
-KEY_WRITE                   = 20006h
-REG_SZ                      = 1
-REG_OPTION_NON_VOLATILE     = 0
+MINIMAL_OBJECT_VTBL = 0
+MINIMAL_OBJECT_REFCOUNT = 4
+MINIMAL_OBJECT_SIZE = 8
 
 section '.text' code readable executable
 
@@ -513,7 +507,7 @@ export 'test_com_dll.dll', \
 section '.idata' import data readable writeable
 
 library kernel32, 'KERNEL32.DLL', \
-        advapi32, 'ADVAPI32.DLL'
+  advapi32, 'ADVAPI32.DLL'
 
 include 'api/kernel32.inc'
 include 'api/advapi32.inc'
