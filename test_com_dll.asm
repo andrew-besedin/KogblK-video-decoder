@@ -515,16 +515,7 @@ section '.idata' import data readable writeable
 library kernel32, 'KERNEL32.DLL', \
         advapi32, 'ADVAPI32.DLL'
 
-import kernel32, \
-  GetModuleFileNameA, 'GetModuleFileNameA', \
-  GetProcessHeap, 'GetProcessHeap', \
-  HeapAlloc, 'HeapAlloc', \
-  HeapFree, 'HeapFree'
-
-import advapi32, \
-  RegCreateKeyExA, 'RegCreateKeyExA', \
-  RegSetValueExA, 'RegSetValueExA', \
-  RegCloseKey, 'RegCloseKey', \
-  RegDeleteKeyA, 'RegDeleteKeyA'
+include 'api/kernel32.inc'
+include 'api/advapi32.inc'
 
 section '.reloc' fixups data readable discardable
