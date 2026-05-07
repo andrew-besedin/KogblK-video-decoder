@@ -133,7 +133,7 @@ DllRegisterServer:
   push REG_SZ
   push 0
   push 0
-  push [ebp-4]
+  push dword [ebp-4]
   call [RegSetValueExA]
 
   lea eax, [ebp-12]
@@ -146,18 +146,18 @@ DllRegisterServer:
   push 0
   push 0
   push sz_inproc_subkey
-  push [ebp-4]
+  push dword [ebp-4]
   call [RegCreateKeyExA]
   test eax, eax
   jnz .error
 
-  push [ebp-16]
+  push dword [ebp-16]
   lea eax, [ebp-280]
   push eax
   push REG_SZ
   push 0
   push 0
-  push [ebp-8]
+  push dword [ebp-8]
   call [RegSetValueExA]
 
   push 10
@@ -165,7 +165,7 @@ DllRegisterServer:
   push REG_SZ
   push 0
   push sz_threading_model
-  push [ebp-8]
+  push dword [ebp-8]
   call [RegSetValueExA]
 
   xor eax, eax
@@ -178,12 +178,12 @@ DllRegisterServer:
 .cleanup:
   cmp dword [ebp-8], 0
   je .skip_inproc_close
-  push [ebp-8]
+  push dword [ebp-8]
   call [RegCloseKey]
 .skip_inproc_close:
   cmp dword [ebp-4], 0
   je .skip_clsid_close
-  push [ebp-4]
+  push dword [ebp-4]
   call [RegCloseKey]
 .skip_clsid_close:
   mov eax, [ebp-20]
