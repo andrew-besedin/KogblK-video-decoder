@@ -372,23 +372,24 @@ proc MinimalObject_QueryInterface pThis, riid, ppvObject
 
 endp
 
-MinimalObject_AddRef:
+proc MinimalObject_AddRef pThis
   push ebp
   mov ebp, esp
 
-  mov eax, [ebp+8]
+  mov eax, [pThis]
   inc dword [eax+MINIMAL_OBJECT_REFCOUNT]
   mov eax, [eax+MINIMAL_OBJECT_REFCOUNT]
 
   mov esp, ebp
   pop ebp
-  ret 4
+  ret
+endp
 
-MinimalObject_Release:
+proc MinimalObject_Release pThis
   push ebp
   mov ebp, esp
 
-  mov ecx, [ebp+8]
+  mov ecx, [pThis]
   dec dword [ecx+MINIMAL_OBJECT_REFCOUNT]
   mov eax, [ecx+MINIMAL_OBJECT_REFCOUNT]
   jnz .done
@@ -406,26 +407,25 @@ MinimalObject_Release:
 .done:
   mov esp, ebp
   pop ebp
-  ret 4
+  ret
+endp
 
-MinimalObject_GetValue:
+proc MinimalObject_GetValue pThis, pValue
   push ebp
   mov ebp, esp
 
-  mov eax, [ebp+12]
+  mov eax, [pValue]
   test eax, eax
   jz .pointer_error
+
   mov dword [eax], 1234
   xor eax, eax
-  mov esp, ebp
-  pop ebp
-  ret 8
+  ret
 
 .pointer_error:
   mov eax, E_POINTER
-  mov esp, ebp
-  pop ebp
-  ret 8
+  ret
+endp
 
 section '.data' data readable writeable
 
