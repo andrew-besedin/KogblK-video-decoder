@@ -314,11 +314,8 @@ proc ClassFactory_CreateInstance pThis, pUnkOuter, riid, ppvObject
   ret
 endp
 
-ClassFactory_LockServer:
-  push ebp
-  mov ebp, esp
-
-  cmp dword [ebp+12], 0
+proc ClassFactory_LockServer pThis, fLock
+  cmp dword [fLock], 0
   je .unlock
   inc dword [g_lockCount]
   jmp .success
@@ -330,9 +327,8 @@ ClassFactory_LockServer:
 
 .success:
   xor eax, eax
-  mov esp, ebp
-  pop ebp
-  ret 8
+  ret
+endp
 
 MinimalObject_QueryInterface:
   push ebp
