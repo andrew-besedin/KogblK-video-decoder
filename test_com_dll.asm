@@ -176,7 +176,7 @@ proc DllRegisterServer
   ret
 endp
 
-DllUnregisterServer:
+proc DllUnregisterServer
   push sz_inproc_full_key
   push HKEY_CLASSES_ROOT
   call [RegDeleteKeyA]
@@ -187,6 +187,7 @@ DllUnregisterServer:
 
   xor eax, eax
   ret
+endp
 
 IsEqualGUID:
   mov edx, [esp+4]
