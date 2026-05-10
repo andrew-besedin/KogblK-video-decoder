@@ -81,33 +81,27 @@ proc DllGetClassObject rclsid, riid, ppv
   ret
 endp
 
-DllRegisterServer:
-  push ebp
-  mov ebp, esp
-  sub esp, 280
-  ; [ebp-4]   = hKeyClsid
-  ; [ebp-8]   = hKeyInproc
-  ; [ebp-12]  = dwDisposition
-  ; [ebp-16]  = path length (including null)
-  ; [ebp-20]  = result
-  ; [ebp-280] = szPath[260]
+proc DllRegisterServer
 
-  mov dword [ebp-4], 0
-  mov dword [ebp-8], 0
+  local hKeyClsid:DWORD, hKeyInproc:DWORD, dwDisposition:DWORD
+  local dwPathLen:DWORD, result:DWORD
+  local szPath[260]:BYTE
 
-  push 260
-  lea eax, [ebp-280]
+  mov dword [hKeyClsid], 0
+  mov dword [hKeyInproc], 0
+
+  lea eax, [szPath]
   push eax
   push [g_hInstance]
   call [GetModuleFileNameA]
   test eax, eax
   jz .error
   inc eax
-  mov [ebp-16], eax
+  mov [dwPathLen], eax
 
-  lea eax, [ebp-12]
+  lea eax, [dwDisposition]
   push eax
-  lea eax, [ebp-4]
+  lea eax, [hKeyClsid]
   push eax
   push 0
   push KEY_WRITE
@@ -125,12 +119,12 @@ DllRegisterServer:
   push REG_SZ
   push 0
   push 0
-  push dword [ebp-4]
+  push dword [hKeyClsid]
   call [RegSetValueExA]
 
-  lea eax, [ebp-12]
+  lea eax, [dwDisposition]
   push eax
-  lea eax, [ebp-8]
+  lea eax, [hKeyInproc]
   push eax
   push 0
   push KEY_WRITE
@@ -138,18 +132,18 @@ DllRegisterServer:
   push 0
   push 0
   push sz_inproc_subkey
-  push dword [ebp-4]
+  push dword [hKeyClsid]
   call [RegCreateKeyExA]
   test eax, eax
   jnz .error
 
-  push dword [ebp-16]
-  lea eax, [ebp-280]
+  push dword [dwPathLen]
+  lea eax, [szPath]
   push eax
   push REG_SZ
   push 0
   push 0
-  push dword [ebp-8]
+  push dword [hKeyInproc]
   call [RegSetValueExA]
 
   push 10
@@ -157,31 +151,30 @@ DllRegisterServer:
   push REG_SZ
   push 0
   push sz_threading_model
-  push dword [ebp-8]
+  push dword [hKeyInproc]
   call [RegSetValueExA]
 
   xor eax, eax
-  mov [ebp-20], eax
+  mov [result], eax
   jmp .cleanup
 
 .error:
-  mov dword [ebp-20], 80004005h
+  mov dword [result], 80004005h
 
 .cleanup:
-  cmp dword [ebp-8], 0
+  cmp dword [hKeyInproc], 0
   je .skip_inproc_close
-  push dword [ebp-8]
+  push dword [hKeyInproc]
   call [RegCloseKey]
 .skip_inproc_close:
-  cmp dword [ebp-4], 0
+  cmp dword [hKeyClsid], 0
   je .skip_clsid_close
-  push dword [ebp-4]
+  push dword [hKeyClsid]
   call [RegCloseKey]
 .skip_clsid_close:
-  mov eax, [ebp-20]
-  mov esp, ebp
-  pop ebp
+  mov eax, [result]
   ret
+endp
 
 DllUnregisterServer:
   push sz_inproc_full_key
