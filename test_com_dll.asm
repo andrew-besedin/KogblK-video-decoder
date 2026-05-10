@@ -18,13 +18,14 @@ MINIMAL_OBJECT_SIZE = 8
 
 section '.text' code readable executable
 
-DllEntryPoint:
-  mov eax, [esp+4]
+proc DllEntryPoint hinstDLL, fdwReason, lpvReserved
+  mov eax, [hinstDLL]
   mov [g_hInstance], eax
   mov eax, 1
-  ret 12
+  ret
+endp
 
-DllCanUnloadNow:
+proc DllCanUnloadNow
   mov eax, [g_objectCount]
   or eax, [g_lockCount]
   jnz .busy
@@ -33,36 +34,34 @@ DllCanUnloadNow:
 .busy:
   mov eax, S_FALSE
   ret
+endp
 
-DllGetClassObject:
-  push ebp
-  mov ebp, esp
-
-  mov eax, [ebp+16]
+proc DllGetClassObject rclsid, riid, ppv
+  mov eax, [ppv]
   test eax, eax
   jz .pointer_error
   mov dword [eax], 0
 
   push CLSID_TinyComObject
-  push dword [ebp+8]
+  push dword [rclsid]
   call IsEqualGUID
   test eax, eax
   jz .bad_class
 
   push IID_IClassFactory
-  push dword [ebp+12]
+  push dword [riid]
   call IsEqualGUID
   test eax, eax
   jnz .return_factory
 
   push IID_IUnknown
-  push dword [ebp+12]
+  push dword [riid]
   call IsEqualGUID
   test eax, eax
   jz .no_interface
 
 .return_factory:
-  mov eax, [ebp+16]
+  mov eax, [ppv]
   mov dword [eax], ClassFactory_Instance
   mov eax, S_OK
   jmp .done
@@ -79,9 +78,8 @@ DllGetClassObject:
   mov eax, E_NOINTERFACE
 
 .done:
-  mov esp, ebp
-  pop ebp
-  ret 12
+  ret
+endp
 
 DllRegisterServer:
   push ebp
