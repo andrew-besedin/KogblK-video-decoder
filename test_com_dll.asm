@@ -265,17 +265,15 @@ proc ClassFactory_Release pThis
   ret
 endp
 
-ClassFactory_CreateInstance:
-  push ebp
-  mov ebp, esp
-  sub esp, 4
+proc ClassFactory_CreateInstance pThis, pUnkOuter, riid, ppvObject
+  local pObject:DWORD
 
-  mov eax, [ebp+20]
+  mov eax, [ppvObject]
   test eax, eax
   jz .pointer_error
   mov dword [eax], 0
 
-  cmp dword [ebp+12], 0
+  cmp dword [pUnkOuter], 0
   jne .no_aggregation
 
   call [GetProcessHeap]
@@ -286,17 +284,17 @@ ClassFactory_CreateInstance:
   test eax, eax
   jz .out_of_memory
 
-  mov [ebp-4], eax
+  mov [pObject], eax
   mov dword [eax+MINIMAL_OBJECT_VTBL], MinimalObject_Vtbl
   mov dword [eax+MINIMAL_OBJECT_REFCOUNT], 1
   inc dword [g_objectCount]
 
-  push dword [ebp+20]
-  push dword [ebp+16]
-  push dword [ebp-4]
+  push dword [ppvObject]
+  push dword [riid]
+  push dword [pObject]
   call MinimalObject_QueryInterface
   push eax
-  push dword [ebp-4]
+  push dword [pObject]
   call MinimalObject_Release
   pop eax
   jmp .done
@@ -313,9 +311,8 @@ ClassFactory_CreateInstance:
   mov eax, E_OUTOFMEMORY
 
 .done:
-  mov esp, ebp
-  pop ebp
-  ret 16
+  ret
+endp
 
 ClassFactory_LockServer:
   push ebp
