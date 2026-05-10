@@ -217,32 +217,29 @@ proc IsEqualGUID refFirstGUID, refSecondGUID
   ret
 endp
 
-ClassFactory_QueryInterface:
-  push ebp
-  mov ebp, esp
-
-  mov eax, [ebp+16]
+proc ClassFactory_QueryInterface pThis, riid, ppvObject
+  mov eax, [ppvObject]
   test eax, eax
   jz .pointer_error
   mov dword [eax], 0
 
   push IID_IClassFactory
-  push dword [ebp+12]
+  push dword [riid]
   call IsEqualGUID
   test eax, eax
   jnz .return_self
 
   push IID_IUnknown
-  push dword [ebp+12]
+  push dword [riid]
   call IsEqualGUID
   test eax, eax
   jz .no_interface
 
 .return_self:
-  mov eax, [ebp+16]
-  mov edx, [ebp+8]
+  mov eax, [ppvObject]
+  mov edx, [pThis]
   mov [eax], edx
-  push dword [ebp+8]
+  push dword [pThis]
   call ClassFactory_AddRef
   mov eax, S_OK
   jmp .done
@@ -255,17 +252,18 @@ ClassFactory_QueryInterface:
   mov eax, E_NOINTERFACE
 
 .done:
-  mov esp, ebp
-  pop ebp
-  ret 12
+  ret
+endp
 
-ClassFactory_AddRef:
+proc ClassFactory_AddRef pThis
   mov eax, 2
-  ret 4
+  ret
+endp
 
-ClassFactory_Release:
+proc ClassFactory_Release pThis
   mov eax, 1
-  ret 4
+  ret
+endp
 
 ClassFactory_CreateInstance:
   push ebp
