@@ -189,9 +189,9 @@ proc DllUnregisterServer
   ret
 endp
 
-IsEqualGUID:
-  mov edx, [esp+4]
-  mov ecx, [esp+8]
+proc IsEqualGUID refFirstGUID, refSecondGUID
+  mov edx, [refFirstGUID]
+  mov ecx, [refSecondGUID]
 
   mov eax, [edx]
   cmp eax, [ecx]
@@ -210,11 +210,12 @@ IsEqualGUID:
   jne .not_equal
 
   mov eax, 1
-  ret 8
+  ret
 
 .not_equal:
   xor eax, eax
-  ret 8
+  ret
+endp
 
 ClassFactory_QueryInterface:
   push ebp
