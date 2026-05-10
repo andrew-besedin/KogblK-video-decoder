@@ -1,4 +1,4 @@
-format PE GUI 4.0 DLL
+format PE DLL
 entry DllEntryPoint
 
 include 'win32a.inc'
@@ -42,21 +42,15 @@ proc DllGetClassObject rclsid, riid, ppv
   jz .pointer_error
   mov dword [eax], 0
 
-  push CLSID_TinyComObject
-  push dword [rclsid]
-  call IsEqualGUID
+  stdcall IsEqualGUID, dword [rclsid], dword CLSID_TinyComObject
   test eax, eax
   jz .bad_class
 
-  push IID_IClassFactory
-  push dword [riid]
-  call IsEqualGUID
+  stdcall IsEqualGUID, dword [riid], dword IID_IClassFactory
   test eax, eax
   jnz .return_factory
 
-  push IID_IUnknown
-  push dword [riid]
-  call IsEqualGUID
+  stdcall IsEqualGUID, dword [riid], dword IID_IUnknown
   test eax, eax
   jz .no_interface
 
