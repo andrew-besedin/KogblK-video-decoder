@@ -330,32 +330,32 @@ proc ClassFactory_LockServer pThis, fLock
   ret
 endp
 
-MinimalObject_QueryInterface:
+proc MinimalObject_QueryInterface pThis, riid, ppvObject
   push ebp
   mov ebp, esp
 
-  mov eax, [ebp+16]
+  mov eax, [ppvObject]
   test eax, eax
   jz .pointer_error
   mov dword [eax], 0
 
   push IID_ITinyValue
-  push dword [ebp+12]
+  push dword [riid]
   call IsEqualGUID
   test eax, eax
   jnz .return_self
 
   push IID_IUnknown
-  push dword [ebp+12]
+  push dword [riid]
   call IsEqualGUID
   test eax, eax
   jz .no_interface
 
 .return_self:
-  mov eax, [ebp+16]
-  mov edx, [ebp+8]
+  mov eax, [ppvObject]
+  mov edx, [pThis]
   mov [eax], edx
-  push dword [ebp+8]
+  push dword [pThis]
   call MinimalObject_AddRef
   xor eax, eax
   jmp .done
@@ -368,9 +368,9 @@ MinimalObject_QueryInterface:
   mov eax, E_NOINTERFACE
 
 .done:
-  mov esp, ebp
-  pop ebp
-  ret 12
+  ret
+
+endp
 
 MinimalObject_AddRef:
   push ebp
