@@ -42,15 +42,15 @@ proc DllGetClassObject rclsid, riid, ppv
   jz .pointer_error
   mov dword [eax], 0
 
-  stdcall IsEqualGUID, dword [rclsid], dword CLSID_TinyComObject
+  stdcall IsEqualGUID, [rclsid], CLSID_TinyComObject
   test eax, eax
   jz .bad_class
 
-  stdcall IsEqualGUID, dword [riid], dword IID_IClassFactory
+  stdcall IsEqualGUID, [riid], IID_IClassFactory
   test eax, eax
   jnz .return_factory
 
-  stdcall IsEqualGUID, dword [riid], dword IID_IUnknown
+  stdcall IsEqualGUID, [riid], IID_IUnknown
   test eax, eax
   jz .no_interface
 
@@ -85,68 +85,67 @@ proc DllRegisterServer
   mov dword [hKeyInproc], 0
 
   lea eax, [szPath]
-  push eax
-  push [g_hInstance]
-  call [GetModuleFileNameA]
+
+  invoke GetModuleFileNameA, dword [g_hInstance], eax
   test eax, eax
   jz .error
+
   inc eax
   mov [dwPathLen], eax
 
   lea eax, [dwDisposition]
-  push eax
-  lea eax, [hKeyClsid]
-  push eax
-  push 0
-  push KEY_WRITE
-  push REG_OPTION_NON_VOLATILE
-  push 0
-  push 0
-  push sz_clsid_key
-  push HKEY_CLASSES_ROOT
-  call [RegCreateKeyExA]
+  lea edx, [hKeyClsid]
+  invoke RegCreateKeyExA, \
+    HKEY_CLASSES_ROOT, \
+    sz_clsid_key, \
+    0, \
+    0, \
+    REG_OPTION_NON_VOLATILE, \
+    KEY_WRITE, \
+    0, \
+    edx, \
+    eax
   test eax, eax
   jnz .error
 
-  push 14
-  push sz_friendly_name
-  push REG_SZ
-  push 0
-  push 0
-  push dword [hKeyClsid]
-  call [RegSetValueExA]
+  invoke RegSetValueExA, \
+    [hKeyClsid], \
+    0, \
+    REG_SZ, \
+    sz_friendly_name, \
+    14
 
   lea eax, [dwDisposition]
-  push eax
-  lea eax, [hKeyInproc]
-  push eax
-  push 0
-  push KEY_WRITE
-  push REG_OPTION_NON_VOLATILE
-  push 0
-  push 0
-  push sz_inproc_subkey
-  push dword [hKeyClsid]
-  call [RegCreateKeyExA]
+  lea edx, [hKeyInproc]
+  invoke RegCreateKeyExA, \
+    [hKeyClsid], \
+    sz_inproc_subkey, \
+    0, \
+    0, \
+    REG_OPTION_NON_VOLATILE, \
+    KEY_WRITE, \
+    0, \
+    edx, \
+    eax
   test eax, eax
   jnz .error
 
-  push dword [dwPathLen]
   lea eax, [szPath]
-  push eax
-  push REG_SZ
-  push 0
-  push 0
-  push dword [hKeyInproc]
-  call [RegSetValueExA]
+  invoke RegSetValueExA, \
+    [hKeyInproc], \
+    0, \
+    0, \
+    REG_SZ, \
+    eax, \
+    [dwPathLen]
 
-  push 10
-  push sz_apartment
-  push REG_SZ
-  push 0
-  push sz_threading_model
-  push dword [hKeyInproc]
-  call [RegSetValueExA]
+  invoke RegSetValueExA, \
+    [hKeyInproc], \
+    sz_threading_model, \
+    0, \
+    REG_SZ, \
+    sz_apartment, \
+    10
 
   xor eax, eax
   mov [result], eax
