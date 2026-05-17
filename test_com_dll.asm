@@ -212,15 +212,11 @@ proc ClassFactory_QueryInterface pThis, riid, ppvObject
   jz .pointer_error
   mov dword [eax], 0
 
-  push IID_IClassFactory
-  push dword [riid]
-  call IsEqualGUID
+  stdcall IsEqualGUID, [riid], IID_IClassFactory
   test eax, eax
   jnz .return_self
 
-  push IID_IUnknown
-  push dword [riid]
-  call IsEqualGUID
+  stdcall IsEqualGUID, [riid], IID_IUnknown
   test eax, eax
   jz .no_interface
 
