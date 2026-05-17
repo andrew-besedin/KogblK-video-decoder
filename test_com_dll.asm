@@ -170,13 +170,9 @@ proc DllRegisterServer
 endp
 
 proc DllUnregisterServer
-  push sz_inproc_full_key
-  push HKEY_CLASSES_ROOT
-  call [RegDeleteKeyA]
+  invoke RegDeleteKeyA, HKEY_CLASSES_ROOT, sz_inproc_full_key 
 
-  push sz_clsid_key
-  push HKEY_CLASSES_ROOT
-  call [RegDeleteKeyA]
+  invoke RegDeleteKeyA, HKEY_CLASSES_ROOT, sz_clsid_key
 
   xor eax, eax
   ret
