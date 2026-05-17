@@ -319,15 +319,11 @@ proc MinimalObject_QueryInterface pThis, riid, ppvObject
   jz .pointer_error
   mov dword [eax], 0
 
-  push IID_ITinyValue
-  push dword [riid]
-  call IsEqualGUID
+  stdcall IsEqualGUID, [riid], IID_ITinyValue
   test eax, eax
   jnz .return_self
 
-  push IID_IUnknown
-  push dword [riid]
-  call IsEqualGUID
+  stdcall IsEqualGUID, [riid], IID_IUnknown
   test eax, eax
   jz .no_interface
 
@@ -335,8 +331,7 @@ proc MinimalObject_QueryInterface pThis, riid, ppvObject
   mov eax, [ppvObject]
   mov edx, [pThis]
   mov [eax], edx
-  push dword [pThis]
-  call MinimalObject_AddRef
+  stdcall MinimalObject_AddRef, [pThis]
   xor eax, eax
   jmp .done
 
