@@ -184,16 +184,16 @@ proc IsEqualGUID refFirstGUID, refSecondGUID
   cmp eax, [ecx]
   jne .not_equal
 
-  mov eax, [edx+4]
-  cmp eax, [ecx+4]
+  mov eax, [edx + 4]
+  cmp eax, [ecx + 4]
   jne .not_equal
 
-  mov eax, [edx+8]
-  cmp eax, [ecx+8]
+  mov eax, [edx + 8]
+  cmp eax, [ecx + 8]
   jne .not_equal
 
-  mov eax, [edx+12]
-  cmp eax, [ecx+12]
+  mov eax, [edx + 12]
+  cmp eax, [ecx + 12]
   jne .not_equal
 
   mov eax, 1
@@ -267,8 +267,8 @@ proc ClassFactory_CreateInstance pThis, pUnkOuter, riid, ppvObject
   jz .out_of_memory
 
   mov [pObject], eax
-  mov dword [eax+MINIMAL_OBJECT_VTBL], MinimalObject_Vtbl
-  mov dword [eax+MINIMAL_OBJECT_REFCOUNT], 1
+  mov dword [eax + MINIMAL_OBJECT_VTBL], MinimalObject_Vtbl
+  mov dword [eax + MINIMAL_OBJECT_REFCOUNT], 1
   inc dword [g_objectCount]
 
   stdcall MinimalObject_QueryInterface, [pObject], [riid], [ppvObject]
@@ -350,8 +350,8 @@ proc MinimalObject_AddRef pThis
   mov ebp, esp
 
   mov eax, [pThis]
-  inc dword [eax+MINIMAL_OBJECT_REFCOUNT]
-  mov eax, [eax+MINIMAL_OBJECT_REFCOUNT]
+  inc dword [eax + MINIMAL_OBJECT_REFCOUNT]
+  mov eax, [eax + MINIMAL_OBJECT_REFCOUNT]
 
   mov esp, ebp
   pop ebp
@@ -363,8 +363,8 @@ proc MinimalObject_Release pThis
   mov ebp, esp
 
   mov ecx, [pThis]
-  dec dword [ecx+MINIMAL_OBJECT_REFCOUNT]
-  mov eax, [ecx+MINIMAL_OBJECT_REFCOUNT]
+  dec dword [ecx + MINIMAL_OBJECT_REFCOUNT]
+  mov eax, [ecx + MINIMAL_OBJECT_REFCOUNT]
   jnz .done
 
   dec dword [g_objectCount]
