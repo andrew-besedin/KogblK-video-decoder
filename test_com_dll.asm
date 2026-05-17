@@ -371,12 +371,9 @@ proc MinimalObject_Release pThis
 
   dec dword [g_objectCount]
   push ecx
-  call [GetProcessHeap]
+  invoke GetProcessHeap
   pop edx
-  push edx
-  push 0
-  push eax
-  call [HeapFree]
+  invoke HeapFree, eax, 0, edx
   xor eax, eax
 
 .done:
