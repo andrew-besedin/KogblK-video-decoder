@@ -224,8 +224,9 @@ proc ClassFactory_QueryInterface pThis, riid, ppvObject
   mov eax, [ppvObject]
   mov edx, [pThis]
   mov [eax], edx
-  push dword [pThis]
-  call ClassFactory_AddRef
+
+  stdcall ClassFactory_AddRef, [pThis]
+
   mov eax, S_OK
   jmp .done
 
@@ -261,11 +262,9 @@ proc ClassFactory_CreateInstance pThis, pUnkOuter, riid, ppvObject
   cmp dword [pUnkOuter], 0
   jne .no_aggregation
 
-  call [GetProcessHeap]
-  push MINIMAL_OBJECT_SIZE
-  push HEAP_ZERO_MEMORY
-  push eax
-  call [HeapAlloc]
+  invoke GetProcessHeap
+
+  invoke HeapAlloc, eax, HEAP_ZERO_MEMORY, MINIMAL_OBJECT_SIZE
   test eax, eax
   jz .out_of_memory
 
@@ -274,13 +273,9 @@ proc ClassFactory_CreateInstance pThis, pUnkOuter, riid, ppvObject
   mov dword [eax+MINIMAL_OBJECT_REFCOUNT], 1
   inc dword [g_objectCount]
 
-  push dword [ppvObject]
-  push dword [riid]
-  push dword [pObject]
-  call MinimalObject_QueryInterface
+  stdcall MinimalObject_QueryInterface, [pObject], [riid], [ppvObject]
   push eax
-  push dword [pObject]
-  call MinimalObject_Release
+  stdcall MinimalObject_Release, [pObject]
   pop eax
   jmp .done
 
