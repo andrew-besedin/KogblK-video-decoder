@@ -157,13 +157,11 @@ proc DllRegisterServer
 .cleanup:
   cmp dword [hKeyInproc], 0
   je .skip_inproc_close
-  push dword [hKeyInproc]
-  call [RegCloseKey]
+  invoke RegCloseKey, [hKeyInproc]
 .skip_inproc_close:
   cmp dword [hKeyClsid], 0
   je .skip_clsid_close
-  push dword [hKeyClsid]
-  call [RegCloseKey]
+  invoke RegCloseKey, [hKeyClsid]
 .skip_clsid_close:
   mov eax, [result]
   ret
