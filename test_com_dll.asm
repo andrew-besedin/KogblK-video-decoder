@@ -111,6 +111,7 @@ proc DllRegisterServer
   invoke RegSetValueExW, \
     [hKeyClsid], \
     0, \
+    0, \
     REG_SZ, \
     sz_friendly_name, \
     sz_friendly_name_len
