@@ -13,7 +13,7 @@ start:
 
 section '.data_r' data readable
 
-message db 'Hello, World!', 13, 10
+message du 'Hello, World!', 13, 10
 message_len = $ - message
 
 section '.data_rw' data readable writeable
