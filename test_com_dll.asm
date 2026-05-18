@@ -77,25 +77,25 @@ endp
 
 proc DllRegisterServer
 
-  local hKeyClsid:DWORD, hKeyInproc:DWORD, dwDisposition:DWORD
-  local dwPathLen:DWORD, result:DWORD
-  local szPath[260]:BYTE
+  local hKeyClsid: DWORD, hKeyInproc: DWORD, dwDisposition: DWORD
+  local dwPathLenBytes: DWORD, result: DWORD
+  local szPath[MAX_PATH]: WORD
 
   mov dword [hKeyClsid], 0
   mov dword [hKeyInproc], 0
 
   lea eax, [szPath]
 
-  invoke GetModuleFileNameA, dword [g_hInstance], eax
+  invoke GetModuleFileNameW, dword [g_hInstance], eax, MAX_PATH
   test eax, eax
   jz .error
 
-  inc eax
-  mov [dwPathLen], eax
+  lea eax, [eax * 2 + 2]
+  mov [dwPathLenBytes], eax
 
   lea eax, [dwDisposition]
   lea edx, [hKeyClsid]
-  invoke RegCreateKeyExA, \
+  invoke RegCreateKeyExW, \
     HKEY_CLASSES_ROOT, \
     sz_clsid_key, \
     0, \
@@ -108,16 +108,16 @@ proc DllRegisterServer
   test eax, eax
   jnz .error
 
-  invoke RegSetValueExA, \
+  invoke RegSetValueExW, \
     [hKeyClsid], \
     0, \
     REG_SZ, \
     sz_friendly_name, \
-    14
+    sz_friendly_name_len
 
   lea eax, [dwDisposition]
   lea edx, [hKeyInproc]
-  invoke RegCreateKeyExA, \
+  invoke RegCreateKeyExW, \
     [hKeyClsid], \
     sz_inproc_subkey, \
     0, \
@@ -131,21 +131,21 @@ proc DllRegisterServer
   jnz .error
 
   lea eax, [szPath]
-  invoke RegSetValueExA, \
+  invoke RegSetValueExW, \
     [hKeyInproc], \
     0, \
     0, \
     REG_SZ, \
     eax, \
-    [dwPathLen]
+    [dwPathLenBytes]
 
-  invoke RegSetValueExA, \
+  invoke RegSetValueExW, \
     [hKeyInproc], \
     sz_threading_model, \
     0, \
     REG_SZ, \
     sz_apartment, \
-    10
+    sz_apartment_len
 
   xor eax, eax
   mov [result], eax
@@ -168,9 +168,9 @@ proc DllRegisterServer
 endp
 
 proc DllUnregisterServer
-  invoke RegDeleteKeyA, HKEY_CLASSES_ROOT, sz_inproc_full_key 
+  invoke RegDeleteKeyW, HKEY_CLASSES_ROOT, sz_inproc_full_key 
 
-  invoke RegDeleteKeyA, HKEY_CLASSES_ROOT, sz_clsid_key
+  invoke RegDeleteKeyW, HKEY_CLASSES_ROOT, sz_clsid_key
 
   xor eax, eax
   ret
@@ -403,12 +403,14 @@ g_lockCount dd 0
 g_objectCount dd 0
 g_hInstance dd 0
 
-sz_clsid_key       db 'CLSID\{7A5F4E21-8C1B-4AF1-9A2B-112233445566}',0
-sz_inproc_subkey   db 'InprocServer32',0
-sz_inproc_full_key db 'CLSID\{7A5F4E21-8C1B-4AF1-9A2B-112233445566}\InprocServer32',0
-sz_friendly_name   db 'TinyComObject',0
-sz_threading_model db 'ThreadingModel',0
-sz_apartment       db 'Apartment',0
+sz_clsid_key du 'CLSID\{7A5F4E21-8C1B-4AF1-9A2B-112233445566}', 0
+sz_inproc_subkey du 'InprocServer32', 0
+sz_inproc_full_key du 'CLSID\{7A5F4E21-8C1B-4AF1-9A2B-112233445566}\InprocServer32', 0
+sz_friendly_name du 'TinyComObject', 0
+sz_friendly_name_len = $ - sz_friendly_name
+sz_threading_model du 'ThreadingModel', 0
+sz_apartment du 'Apartment', 0
+sz_apartment_len = $ - sz_apartment
 
 ClassFactory_Instance:
   dd ClassFactory_Vtbl
