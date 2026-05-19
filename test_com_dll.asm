@@ -9,6 +9,7 @@ E_NOTIMPL = 80004001h
 E_NOINTERFACE = 80004002h
 E_POINTER = 80004003h
 E_OUTOFMEMORY = 8007000Eh
+E_FAIL = 80004005h
 CLASS_E_NOAGGREGATION = 80040110h
 CLASS_E_CLASSNOTAVAILABLE = 80040111h
 
@@ -153,7 +154,7 @@ proc DllRegisterServer
   jmp .cleanup
 
 .error:
-  mov dword [result], 80004005h
+  mov dword [result], E_FAIL
 
 .cleanup:
   cmp dword [hKeyInproc], 0
