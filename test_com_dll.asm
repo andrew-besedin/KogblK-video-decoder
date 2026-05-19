@@ -116,6 +116,8 @@ proc DllRegisterServer
     REG_SZ, \
     sz_friendly_name, \
     sz_friendly_name_len
+  test eax, eax
+  jnz .error
 
   lea eax, [dwDisposition]
   lea edx, [hKeyInproc]
@@ -140,6 +142,8 @@ proc DllRegisterServer
     REG_SZ, \
     eax, \
     [dwPathLenBytes]
+  test eax, eax
+  jnz .error
 
   invoke RegSetValueExW, \
     [hKeyInproc], \
@@ -148,6 +152,8 @@ proc DllRegisterServer
     REG_SZ, \
     sz_apartment, \
     sz_apartment_len
+  test eax, eax
+  jnz .error
 
   xor eax, eax
   mov [result], eax
