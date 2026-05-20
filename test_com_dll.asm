@@ -79,7 +79,7 @@ endp
 proc DllRegisterServer
 
   local hKeyClsid: DWORD, hKeyInproc: DWORD, dwDisposition: DWORD
-  local dwPathLenBytes: DWORD, result: DWORD
+  local dwPathLenBytes: DWORD, result: DWORD, errorCode: DWORD
   local szPath[MAX_PATH]: WORD
 
   mov dword [hKeyClsid], 0
@@ -89,8 +89,13 @@ proc DllRegisterServer
 
   invoke GetModuleFileNameW, dword [g_hInstance], eax, MAX_PATH
   test eax, eax
-  jz .error
+  jnz @f
 
+  invoke GetLastError
+  mov [errorCode], eax
+  jmp .error
+
+@@:
   lea eax, [eax * 2 + 2]
   mov [dwPathLenBytes], eax
 
@@ -107,8 +112,12 @@ proc DllRegisterServer
     edx, \
     eax
   test eax, eax
-  jnz .error
+  jz @f
 
+  mov [errorCode], eax
+  jmp .error
+
+@@:
   invoke RegSetValueExW, \
     [hKeyClsid], \
     0, \
@@ -132,8 +141,12 @@ proc DllRegisterServer
     edx, \
     eax
   test eax, eax
-  jnz .error
+  jz @f
 
+  mov [errorCode], eax
+  jmp .error
+
+@@:
   lea eax, [szPath]
   invoke RegSetValueExW, \
     [hKeyInproc], \
@@ -143,8 +156,12 @@ proc DllRegisterServer
     eax, \
     [dwPathLenBytes]
   test eax, eax
-  jnz .error
+  jz @f
 
+  mov [errorCode], eax
+  jmp .error
+
+@@:
   invoke RegSetValueExW, \
     [hKeyInproc], \
     sz_threading_model, \
@@ -153,14 +170,19 @@ proc DllRegisterServer
     sz_apartment, \
     sz_apartment_len
   test eax, eax
-  jnz .error
+  jz @f
 
+  mov [errorCode], eax
+  jmp .error
+
+@@:
   xor eax, eax
   mov [result], eax
   jmp .cleanup
 
 .error:
-  mov dword [result], E_FAIL
+  mov eax, [errorCode]
+  mov [result], eax
 
 .cleanup:
   cmp dword [hKeyInproc], 0
