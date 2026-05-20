@@ -1,7 +1,7 @@
 format PE DLL
 entry DllEntryPoint
 
-include 'win32a.inc'
+include 'win32wxp.inc'
 
 S_OK = 0
 S_FALSE = 1
