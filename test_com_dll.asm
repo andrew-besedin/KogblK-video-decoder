@@ -126,8 +126,12 @@ proc DllRegisterServer
     sz_friendly_name, \
     sz_friendly_name_len
   test eax, eax
-  jnz .error
+  jz @f
 
+  mov [errorCode], eax
+  jmp .error
+
+@@:
   lea eax, [dwDisposition]
   lea edx, [hKeyInproc]
   invoke RegCreateKeyExW, \
