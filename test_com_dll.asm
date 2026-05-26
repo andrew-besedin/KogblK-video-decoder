@@ -12,10 +12,13 @@ E_OUTOFMEMORY = 8007000Eh
 E_FAIL = 80004005h
 CLASS_E_NOAGGREGATION = 80040110h
 CLASS_E_CLASSNOTAVAILABLE = 80040111h
+WINERROR_FILE_NOT_FOUND = 2h
 
 MINIMAL_OBJECT_VTBL = 0
 MINIMAL_OBJECT_REFCOUNT = 4
 MINIMAL_OBJECT_SIZE = 8
+
+KEY_WOW64_32KEY = 0200h
 
 section '.text' code readable executable
 
@@ -202,11 +205,33 @@ proc DllRegisterServer
 endp
 
 proc DllUnregisterServer
-  invoke RegDeleteKeyW, HKEY_CLASSES_ROOT, sz_inproc_full_key 
+  local errorCode: DWORD
 
-  invoke RegDeleteKeyW, HKEY_CLASSES_ROOT, sz_clsid_key
+  invoke RegDeleteKeyExW, HKEY_CLASSES_ROOT, sz_inproc_full_key, KEY_WOW64_32KEY, 0
+  test eax, eax
+  jz @f
+  cmp eax, WINERROR_FILE_NOT_FOUND
+  je @f
+  
+  mov [errorCode], eax
+  jmp error
 
+@@:
+  invoke RegDeleteKeyExW, HKEY_CLASSES_ROOT, sz_clsid_key, KEY_WOW64_32KEY, 0
+  test eax, eax
+  jz @f
+  cmp eax, WINERROR_FILE_NOT_FOUND
+  je @f
+  
+  mov [errorCode], eax
+  jmp error
+
+@@:
   xor eax, eax
+  ret
+
+error:
+  mov eax, [errorCode]
   ret
 endp
 
@@ -500,6 +525,10 @@ library kernel32, 'KERNEL32.DLL', \
   advapi32, 'ADVAPI32.DLL'
 
 include 'api/kernel32.inc'
-include 'api/advapi32.inc'
+import advapi32, \
+  RegCreateKeyExW, 'RegCreateKeyExW', \
+  RegSetValueExW, 'RegSetValueExW', \
+  RegCloseKey, 'RegCloseKey', \
+  RegDeleteKeyExW, 'RegDeleteKeyExW'
 
 section '.reloc' fixups data readable discardable
