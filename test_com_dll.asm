@@ -13,6 +13,7 @@ E_FAIL = 80004005h
 CLASS_E_NOAGGREGATION = 80040110h
 CLASS_E_CLASSNOTAVAILABLE = 80040111h
 WINERROR_FILE_NOT_FOUND = 2h
+FACILITY_WIN32 = 0007h
 
 MINIMAL_OBJECT_VTBL = 0
 MINIMAL_OBJECT_REFCOUNT = 4
@@ -188,7 +189,7 @@ proc DllRegisterServer
   jmp .cleanup
 
 .error:
-  mov eax, [errorCode]
+  stdcall HRESULT_FROM_WIN32, [errorCode]
   mov [result], eax
 
 .cleanup:
@@ -231,7 +232,20 @@ proc DllUnregisterServer
   ret
 
 error:
-  mov eax, [errorCode]
+  stdcall HRESULT_FROM_WIN32, [errorCode]
+  ret
+
+endp
+
+proc HRESULT_FROM_WIN32 dwError
+  mov eax, [dwError]
+  test eax, eax
+  jle .done
+
+  and eax, 0FFFFh
+  or eax, 80000000h or (FACILITY_WIN32 shl 16)
+
+.done:
   ret
 endp
 
