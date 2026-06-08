@@ -382,9 +382,6 @@ proc ClassFactory_LockServer pThis, fLock
 endp
 
 proc MinimalObject_QueryInterface pThis, riid, ppvObject
-  push ebp
-  mov ebp, esp
-
   mov eax, [ppvObject]
   test eax, eax
   jz .pointer_error
@@ -419,22 +416,13 @@ proc MinimalObject_QueryInterface pThis, riid, ppvObject
 endp
 
 proc MinimalObject_AddRef pThis
-  push ebp
-  mov ebp, esp
-
   mov eax, [pThis]
   inc dword [eax + MINIMAL_OBJECT_REFCOUNT]
   mov eax, [eax + MINIMAL_OBJECT_REFCOUNT]
-
-  mov esp, ebp
-  pop ebp
   ret
 endp
 
 proc MinimalObject_Release pThis
-  push ebp
-  mov ebp, esp
-
   mov ecx, [pThis]
   dec dword [ecx + MINIMAL_OBJECT_REFCOUNT]
   mov eax, [ecx + MINIMAL_OBJECT_REFCOUNT]
@@ -448,15 +436,10 @@ proc MinimalObject_Release pThis
   xor eax, eax
 
 .done:
-  mov esp, ebp
-  pop ebp
   ret
 endp
 
 proc MinimalObject_GetValue pThis, pValue
-  push ebp
-  mov ebp, esp
-
   mov eax, [pValue]
   test eax, eax
   jz .pointer_error
